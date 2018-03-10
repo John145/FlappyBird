@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>FlappyBird</title>
+	<style>
+		@keyframes fly{
+			0%{
+				top: 120px;
+			}
+			100%{
+				top: 150px;
+			}
+		}
+		@keyframes birdMove{
+			0%{
+				background: url("img/bird0.png");
+			}
+			100%{
+				background: url("img/bird1.png");
+			}
+		}
+		@keyframes bannerMove{
+			0%{
+				left: 0;
+			}
+			100%{
+				left:-343px;
+			}
+		}
+		#wrap{
+			width: 343px;
+			height: 480px;
+			background: url("img/bg.jpg");
+			position: relative;
+			overflow: hidden;
+		}
+		#beginScore{
+			width: 28px;
+			height: 39px;
+			background: url("img/0.jpg");
+			position: absolute;
+			top: 50px;
+			left: 50%;
+			margin-left: -14px;
+			z-index: 1;
+		}
+		#title{
+			position: absolute;
+			top: 150px;
+			left: 50px;
+			animation: fly 1s linear infinite alternate;
+			-webkit-animation: fly 1s linear infinite alternate;
+			-moz-animation: fly 1s linear infinite alternate;
+			-o-animation: fly 1s linear infinite alternate;
+		}
+		#beginBird{
+			position: absolute;
+			top: 20px;
+			right: 10px;
+			background: url("img/bird0.png");
+			width: 40px;
+			height: 26px;
+			animation: birdMove 1s linear infinite alternate;
+			-webkit-animation: birdMove 1s linear infinite alternate;
+			-moz-animation: birdMove 1s linear infinite alternate;
+			-o-animation: birdMove 1s linear infinite alternate;
+		}
+		#start{
+			width: 85px;
+			height: 29px;
+			background: url("img/start.jpg");
+			position: absolute;
+			left: 50%;
+			margin-left: -42px;
+			top: 300px;
+		}
+		#banner{
+			background: url("img/slider.jpg");
+			width: 686px;
+			height: 14px;
+			position: absolute;
+			bottom: 43px;
+			animation: bannerMove 3s linear infinite;
+			-webkit-animation: bannerMove 3s linear infinite;
+			-moz-animation: bannerMove 3s linear infinite;
+			-o-animation: bannerMove 3s linear infinite;
+		}
+		#bird{
+			width: 40px;
+			height: 30px;
+			position: absolute;
+			left: 30px;
+			top: 150px;
+			display: none;
+		}
+		.birdUp{
+			background: url("img/up_bird0.png") no-repeat;
+		}
+		.birdDown{
+			background: url("img/down_bird0.png") no-repeat;
+		}
+		.duct{
+			width: 62px;
+			height: 423px;
+			position: absolute;
+			left: 343px;
+		}
+		.upduct{
+			height: 150px;
+			background: url("img/up_mod.png") repeat-y;
+			position: relative;
+		}
+		.upduct img{
+			position: absolute;
+			bottom: 0;
+		}
+		.downduct{
+			height: 100px;
+			background: url("img/down_mod.png") repeat-y;
+			position: absolute;
+			bottom: 0;
+		}
+	</style>
+</head>
+<body>
+	<div id="wrap">
+		<div id="beginScore"></div>
+		<div id="title">
+			<img src="img/head.jpg">
+			<div id="beginBird"></div>
+		</div>
+		<div id="start"></div>
+		<div id="banner"></div>
+		<div id="bird" class="birdDown"></div>
+		<!-- 固定的管道 -->
+		<!-- <div class="duct">
+			<div class="upduct">
+				<img src="img/up_pipe.png" alt="">
+			</div>
+			<div class="downduct">
+				<img src="img/down_pipe.png" alt="">
+			</div>
+		</div> -->
+	</div>
+</body>
+</html>
+<script>
+	var beginScore = document.getElementById('beginScore');
+	var title = document.getElementById('title');
+	var start = document.getElementById('start');
+	var bird = document.getElementById('bird');
+	var wrap = document.getElementById('wrap');
+
+	function gameBegin(){
+		start.onclick = function(){
+			// beginScore.style.display = "none";
+			title.style.display = "none";
+			this.style.display = "none";
+			bird.style.display = "block";
+			birdMove();
+			createDuct();
+		};
+	};
+	var y = 2;
+	function birdMove(){
+		var offTop = bird.offsetTop;
+		var timer = setInterval(function(){
+			offTop += y;
+			y += 0.5;
+			if(y >= 6){
+				y = 6;
+			}
+			if(y < 0){
+				bird.className = "birdUp";
+			}else{
+				bird.className = "birdDown";
+			}
+			if(offTop >= 480 - 57 - 30){
+				offTop = 480 - 57 - 30;
+				clearInterval(timer);
+			}
+			bird.style.top = offTop + 'px';
+		},30);
+	};
+	function tapWrap(){
+		wrap.onclick = function(){
+			y = -7;
+			return false; //取消默认事件
+		};
+	};
+
+	function createDuct(){
+		//每隔多长时间创建一组管道
+		var timer = setInterval(function(){
+			var duct = document.createElement("div");
+			duct.className = 'duct';
+			wrap.appendChild(duct);
+			//添加上管道
+			var up = document.createElement("div");
+			up.className = "upduct";
+			up.style.height = random(60,203) + 'px';
+			duct.appendChild(up);
+			var upImg = document.createElement("img");
+			upImg.src = "img/up_pipe.png";
+			up.appendChild(upImg);
+
+			//添加下管道
+			var down = document.createElement("div");
+			down.className = "downduct";
+			down.style.height = 323 - up.offsetHeight + 'px';
+			duct.appendChild(down);
+			var downImg = document.createElement("img");
+			downImg.src = "img/down_pipe.png";
+			down.appendChild(downImg);
+			ductMove(duct);
+		},3000);
+	};
+	function random(min,max){
+		return parseInt(Math.random() * (max - min) + min);
+	};
+	function ductMove(duct){
+		duct.move = setInterval(function(){
+			var offLeft = duct.offsetLeft;
+			offLeft -= 1;
+			duct.style.left = offLeft + 'px';
+			if(offLeft <= -duct.offsetWidth){
+				wrap.removeChild(duct);
+				clearInterval(duct.move); //停止计时器
+			}
+		},15);
+	}
+	gameBegin();
+	tapWrap();
+</script>
